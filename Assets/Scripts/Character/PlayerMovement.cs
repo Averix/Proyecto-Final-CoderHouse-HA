@@ -10,9 +10,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float lookSpeed = 0.00f;
     // Walking speed
     [SerializeField] private float speed = 0.0f;
-    // Current position
-    [SerializeField] public int nextWaypoint = 0;
+    // Final Waypoint
     [SerializeField] public int newWP;
+    // Next Waypoint
+    [SerializeField] public int followingWaypoint = 0;
+    // Previous Waypoint
     [SerializeField] private int lastWaypoint = 0;
 
 
@@ -39,12 +41,13 @@ public class PlayerMovement : MonoBehaviour
         {
             NextWaypoint();
             WayPointControl();
-            LookAtObjective(nextWaypoint);
-            ChaseObjective(nextWaypoint);
-        }if (movementPoints == 0)
+            LookAtObjective(followingWaypoint);
+            ChaseObjective(followingWaypoint);
+        }
+        if (movementPoints == 0 && isRun)
         {
-            isRun = false;
-            playerAnimator.SetTrigger("Idle");
+                isRun = false;
+                playerAnimator.SetTrigger("Idle");
         }
     }
     //look method using lerp
@@ -67,10 +70,10 @@ public class PlayerMovement : MonoBehaviour
                 newWP -= waypoints.Length;
                 newWP += loopPosition;
         }
-        if (nextWaypoint >= waypoints.Length)
+        if (followingWaypoint >= waypoints.Length)
         {
-            nextWaypoint -= waypoints.Length;
-            nextWaypoint += loopPosition;
+            followingWaypoint -= waypoints.Length;
+            followingWaypoint += loopPosition;
         }
         if (lastWaypoint >= waypoints.Length)
         {
@@ -96,9 +99,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void NextWaypoint()
     {
-        if (nextWaypoint == lastWaypoint && movementPoints != 0)
+        if (followingWaypoint == lastWaypoint && movementPoints != 0)
         {
-            nextWaypoint++;
+            followingWaypoint++;
         }
     }
 

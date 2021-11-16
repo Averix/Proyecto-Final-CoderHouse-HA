@@ -62,14 +62,14 @@ public class GameManager : MonoBehaviour
         else
         {
             playerMovement = players[0].GetComponent<PlayerMovement>();
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space)&& playerMovement.movementPoints==0)
             {
                 int movement = Random.Range(1, 7);
                 playerMovement.isRun = true;
                 playerMovement.loopPosition = loopPosition;
                 playerMovement.movementPoints = movement;
                 playerMovement.playerAnimator.SetTrigger("Run");
-                playerMovement.newWP = playerMovement.nextWaypoint + movement;
+                playerMovement.newWP = playerMovement.followingWaypoint + movement;
             }
         }
 
