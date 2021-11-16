@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - P1
+  - P2
+  - P3
+  - P4
+  - Enemy
+  - Platform
   layers:
   - Default
   - TransparentFX
