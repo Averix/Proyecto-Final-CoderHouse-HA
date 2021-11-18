@@ -1344,7 +1344,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 795773168}
-  - component: {fileID: 795773169}
   m_Layer: 0
   m_Name: SoundTrigger_1
   m_TagString: Untagged
@@ -1366,19 +1365,6 @@ Transform:
   m_Father: {fileID: 1778921560}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &795773169
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 795773167}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d84dca3e72aa404a9c19aa14e4df612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rayDistance: 1
 --- !u!1 &811737132 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 116326, guid: 4c4b74795dcc8de4388e3ae8f85e1483, type: 3}
@@ -2855,6 +2841,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a31ca70574bb59f46887a1e2c28dee68, type: 3}
   - {fileID: 8300000, guid: 5bc276cfeebb4c643a4be4efd104c24c, type: 3}
   mainSound: {fileID: 1965737305}
+  rayDistance: 1
   currentPlayerRun: 0
 --- !u!82 &1965737305
 AudioSource:
@@ -3225,7 +3212,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2101040812}
-  - component: {fileID: 2101040813}
   m_Layer: 0
   m_Name: SoundTrigger_2
   m_TagString: Untagged
@@ -3247,19 +3233,6 @@ Transform:
   m_Father: {fileID: 1778921560}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: -129.5, z: 0}
---- !u!114 &2101040813
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2101040811}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d84dca3e72aa404a9c19aa14e4df612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rayDistance: 1
 --- !u!1001 &2135648750
 PrefabInstance:
   m_ObjectHideFlags: 0
