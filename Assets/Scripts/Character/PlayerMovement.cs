@@ -21,12 +21,16 @@ public class PlayerMovement : MonoBehaviour
     // Variables to control by the GameManager
     // To control player motion and run animation
     [SerializeField] public bool isRun = false;
+    //
+    [SerializeField] public bool movementDone = false;
     // Amount of movement for the character this turn
     [SerializeField] public int movementPoints;
     // Target position to loop on this scenario
     [SerializeField] public int loopPosition;
     // Player Animator
     [SerializeField] public Animator playerAnimator;
+    // Get Player Rigidbody
+    [SerializeField] private Rigidbody playerRB;
 
     // Start is called before the first frame update
     void Start()
@@ -46,8 +50,9 @@ public class PlayerMovement : MonoBehaviour
         }
         if (movementPoints == 0 && isRun)
         {
-                isRun = false;
-                playerAnimator.SetTrigger("Idle");
+            isRun = false;
+            movementDone = true;
+            playerAnimator.SetTrigger("Idle");
         }
     }
     //look method using lerp
@@ -104,5 +109,13 @@ public class PlayerMovement : MonoBehaviour
             followingWaypoint++;
         }
     }
+
+    //private void RunAnimControl()
+    //{
+    //    if (playerRB.velocity != Vector3.zero)
+    //    {
+
+    //    }
+    //}
 
 }
