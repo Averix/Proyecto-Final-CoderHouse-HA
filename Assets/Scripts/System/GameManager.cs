@@ -17,7 +17,10 @@ public class GameManager : MonoBehaviour
     // Sound components
     [SerializeField] private GameObject[] audioTrigger;
     [SerializeField] private AudioClip[] audioClips;
-    [SerializeField] private AudioSource mainSound; 
+    [SerializeField] private AudioSource mainSound;
+    // Raycast triggers
+    [SerializeField] private int rayDistance = 1;
+    [SerializeField] public RaycastHit hit;
     //
     private PlayerMovement playerMovement;
     public bool currentPlayerRun;
@@ -178,9 +181,15 @@ public class GameManager : MonoBehaviour
         }
 
         // Audio Control By Raycast
-        if (audioTrigger[1].hit)
+        if (Physics.Raycast(audioTrigger[0].transform.position, audioTrigger[0].transform.TransformDirection(Vector3.forward), out hit, rayDistance))
         {
-
+            mainSound.clip = audioClips[1];
+            mainSound.Play();
+        }
+        if (Physics.Raycast(audioTrigger[1].transform.position, audioTrigger[1].transform.TransformDirection(Vector3.forward), out hit, rayDistance))
+        {
+            mainSound.clip = audioClips[2];
+            mainSound.Play();
         }
     }
 
