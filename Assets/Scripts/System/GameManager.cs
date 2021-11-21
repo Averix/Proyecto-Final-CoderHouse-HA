@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    [SerializeField] [Range (1,4)]private int numPlayers;
+    [SerializeField] [Range(1, 4)] private int numPlayers;
     [SerializeField] private GameObject[] players;
     //[SerializeField] private int[] playerTurn;
     [SerializeField] private int currentTurn;
@@ -21,17 +21,24 @@ public class GameManager : MonoBehaviour
     // Raycast triggers
     [SerializeField] private int rayDistance = 1;
     [SerializeField] public RaycastHit hit;
-    //
+    // Player movement Script
     private PlayerMovement playerMovement;
-    public bool currentPlayerRun;
-    public static bool movementPhaseStart;
-    public static bool movementPhaseDone;
-    public static bool actionPhase;
-    public static bool actionDone;
-    public static bool nextPlayerTurn;
-    public static bool turnEnd;
-     
-    
+    // Player marker control
+    private MarkerController markerController;
+    // Player camera control
+    [SerializeField] private CameraManager cameramanager;
+    // Player turn status 
+    [SerializeField] public static bool currentPlayerRun;
+    [SerializeField] public static bool movementPhaseStart;
+    [SerializeField] public static bool movementPhaseDone;
+    [SerializeField] public static bool actionPhase;
+    [SerializeField] public static bool actionDone;
+    [SerializeField] public static bool nextPlayerTurn;
+    [SerializeField] public static bool turnEnd;
+    // player override status
+    [SerializeField] public static bool movementOverride = false;
+    [SerializeField] public static bool actionOverride = false;
+
 
     void Awake()
     {
@@ -45,7 +52,7 @@ public class GameManager : MonoBehaviour
             players[1] = GameObject.Find("Player 2");
             players[2] = GameObject.Find("Player 3");
             players[3] = GameObject.Find("Player 4");
-            // Deactivates players that wont plat
+            // Deactivates players that wont plaY and disable markers other than P1
             switch (numPlayers)
             {
                 case 1:
@@ -58,12 +65,29 @@ public class GameManager : MonoBehaviour
                     players[3].SetActive(false);
                     break;
                 case 3:
-                    players[3].SetActive(false);
+                    players[3].SetActive(false);    
                     break;
                 default:
                     break;
             }
             
+            // gets virtual camera
+            GameObject vCam = GameObject.Find("Vcam1");
+            cameramanager = vCam.GetComponent<CameraManager>();
+            CameraChange(currentPlayer);
+
+            markerController = players[0].GetComponent<MarkerController>();
+            markerController.markerIndex = 0;
+            markerController = players[1].GetComponent<MarkerController>();
+            markerController.markerIndex = 1;
+            markerController.markerEN = false;
+            markerController = players[2].GetComponent<MarkerController>();
+            markerController.markerIndex = 2;
+            markerController.markerEN = false;
+            markerController = players[3].GetComponent<MarkerController>();
+            markerController.markerIndex = 3;
+            markerController.markerEN = false;
+
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -89,24 +113,62 @@ public class GameManager : MonoBehaviour
         currentPlayer = 0;
         // Initialize timers
         nextTunrTimer = 0.00f;
-        turnTimer = 0.00f;
+        turnTimer = 120.00f;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Turn timer control
+        if (turnTimer >= 0.0f)
+        {
+            turnTimer -= Time.deltaTime;
+        }
+        else
+        {
+            // Override movemente phase
+            if (movementPhaseStart)
+            {
+                if (!playerMovement.isRun)
+                {
+                    movementOverride = true;
+                }
+                else
+                {
+                    movementOverride = false;
+                }    
+            }
+
+            // Override action phase
+            if (actionPhase && !actionDone)
+            {
+                actionOverride = true;
+            }
+            else
+            {
+                actionOverride = false;
+            }
+        }
+
         // starts at 0, if numplayers = 1 then it will only execute once
         if (currentPlayer != numPlayers)
         {
             // gets current player scripts
             playerMovement = players[currentPlayer].GetComponent<PlayerMovement>();
+            // Gets current player marker script
+            markerController = players[currentPlayer].GetComponentInChildren<MarkerController>();
+            // Enables markes and asigns color according to current player
+            MarkerEnabler(currentPlayer);
+            // sets canera on current player
+            CameraChange(currentPlayer);
 
             // if player hasnt moved and is nost moving then Start Movement Phase
-            if (!movementPhaseDone && !playerMovement.isRun && !playerMovement.movementDone)
+            if (!movementPhaseDone && !playerMovement.isRun && !playerMovement.movementDone && !nextPlayerTurn)
             {
                 movementPhaseStart = true;
             }
-            
+
             // Once movement has started the flags are set to avoid setting start again
             if (movementPhaseStart)
             {
@@ -116,8 +178,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    TurnMovement(currentPlayer);
-                }      
+                    TurnMovement(movementOverride);
+                }
             }
 
             if (playerMovement.movementDone)
@@ -132,10 +194,10 @@ public class GameManager : MonoBehaviour
             }
 
             // in action phase we call for action scripts and await player input
-            if(actionPhase && !actionDone)
+            if (actionPhase && !actionDone)
             {
-                TurnAction(currentPlayer);
-                if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.R))
+                TurnAction(actionOverride);
+                if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.R) || actionOverride)
                 {
                     actionPhase = false;
                     actionDone = true;
@@ -144,10 +206,9 @@ public class GameManager : MonoBehaviour
 
             // the IF is missing parameters from the action scripts
             // Once actions have been taken and confirmed a timner is started and player count is increased
-            if(movementPhaseDone && actionDone && !nextPlayerTurn)
+            if (movementPhaseDone && actionDone && !nextPlayerTurn)
             {
                 playerMovement.movementDone = false;
-                currentPlayer++;
                 nextPlayerTurn = true;
             }
 
@@ -158,17 +219,20 @@ public class GameManager : MonoBehaviour
                 if (numPlayers != 1)
                     Debug.Log("Preparate siguiente Jugador");
             }
-            
+
             // once timer is ready actions are reset and another turn can be taken
             // if more than 1 playuer is playing then the next player is anounced
             if (nextTunrTimer >= 2.00f)
             {
+                currentPlayer++;
                 nextPlayerTurn = false;
                 movementPhaseDone = false;
                 actionDone = false;
-                if (numPlayers!= 1)
+                if (numPlayers != 1)
                     Debug.Log("Tu turno Jugador" + currentPlayer);
                 nextTunrTimer = 0.00f;
+                turnTimer = 120.00f;
+                MarkerDisable();
             }
         }
 
@@ -180,25 +244,14 @@ public class GameManager : MonoBehaviour
             Debug.Log("Empieza tu nuevo turno");
         }
 
-        // Audio Control By Raycast
-        if (Physics.Raycast(audioTrigger[0].transform.position, audioTrigger[0].transform.TransformDirection(Vector3.forward), out hit, rayDistance))
-        {
-            mainSound.clip = audioClips[1];
-            mainSound.Play();
-        }
-        if (Physics.Raycast(audioTrigger[1].transform.position, audioTrigger[1].transform.TransformDirection(Vector3.forward), out hit, rayDistance))
-        {
-            mainSound.clip = audioClips[2];
-            mainSound.Play();
-        }
     }
 
     // Method to generate the movement and activate current player movement script
     // movement is chosen as a random 1-6 as in a dice roll
     // player input SPACEBAR is expected
-    private void TurnMovement(int playerIndex)
+    private void TurnMovement(bool movementOverride)
     {
-        if (Input.GetKeyDown(KeyCode.Space) && playerMovement.movementPoints == 0)
+        if ((Input.GetKeyDown(KeyCode.Space) && playerMovement.movementPoints == 0)|| movementOverride)
         {
             int movement = Random.Range(1, 7);
             playerMovement.isRun = true;
@@ -211,10 +264,47 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Enables current player marker and assigns color
+    private void MarkerEnabler(int player)
+    {
+        markerController.markerEN = true;
+        switch (player)
+        {
+            case 0:
+                markerController.markerMat.material.color = Color.red;
+                break;
+            case 1:
+                markerController.markerMat.material.color = Color.blue;
+                break;
+            case 2:
+                markerController.markerMat.material.color = Color.yellow;
+                break;
+            case 3:
+                markerController.markerMat.material.color = Color.green;
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    // Disables current player marker
+    private void MarkerDisable()
+    {
+        markerController.markerEN = false;
+    }
+
+    // Assigns virtual camera to current player
+    private void CameraChange(int player)
+    {
+        cameramanager.camFollow = players[player];
+        cameramanager.camLookAt = players[player];
+    }
+
     // Method to take one of three actions
     // 1 fight, 2 quest, 3 rest
     // player input F, Q or R is expected
-    private void TurnAction(int playerIndex)
+    private void TurnAction(bool actionOverride)
     {
         // Call for figth Script to instantiate enemy based on tile difficulty and resolve battle at random
         if (Input.GetKeyDown(KeyCode.F))
@@ -231,10 +321,25 @@ public class GameManager : MonoBehaviour
         }
 
         // Call for recovery Script to regain a fixed amount of HP
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R ) || actionOverride)
         {
             // put recovery script here
             Debug.Log("You decide to take a break and indulge in the scenery");
+        }
+    }
+
+    private void RaycastSoundChange()
+    {
+        // Audio Control By Raycast
+        if (Physics.Raycast(audioTrigger[0].transform.position, audioTrigger[0].transform.TransformDirection(Vector3.forward), out hit, rayDistance))
+        {
+            mainSound.clip = audioClips[1];
+            mainSound.Play();
+        }
+        if (Physics.Raycast(audioTrigger[1].transform.position, audioTrigger[1].transform.TransformDirection(Vector3.forward), out hit, rayDistance))
+        {
+            mainSound.clip = audioClips[2];
+            mainSound.Play();
         }
     }
 }

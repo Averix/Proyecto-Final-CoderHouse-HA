@@ -35,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerAnimator = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -54,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
             movementDone = true;
             playerAnimator.SetTrigger("Idle");
         }
+        //RunAnimControl();
     }
     //look method using lerp
     private void LookAtObjective(int currentWP)
@@ -114,7 +115,13 @@ public class PlayerMovement : MonoBehaviour
     //{
     //    if (playerRB.velocity != Vector3.zero)
     //    {
-
+    //        playerAnimator.SetBool("Idle", false); 
+    //        playerAnimator.SetBool("Run", true);
+    //    }
+    //    else
+    //    {
+    //        playerAnimator.SetBool("Run", false);
+    //        playerAnimator.SetBool("Idle", true);
     //    }
     //}
 

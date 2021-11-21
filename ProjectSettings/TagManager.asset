@@ -10,6 +10,7 @@ TagManager:
   - P4
   - Enemy
   - Platform
+  - Markers
   layers:
   - Default
   - TransparentFX
