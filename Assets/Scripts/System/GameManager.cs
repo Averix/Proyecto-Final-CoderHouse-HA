@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] public RaycastHit hit;
     // Menu data Transfer
     private MenuDataTransfer dataInstance;
+    // HUD Control
+    private GUIManager hudInstance;
     // Player movement Script
     private PlayerMovement playerMovement;
     // Player marker control
@@ -67,6 +69,12 @@ public class GameManager : MonoBehaviour
             // Gets numPlayers from Menu Data
             dataInstance = GameObject.Find("Menu Data Transfer").GetComponent<MenuDataTransfer>();
             numPlayers = dataInstance.numPlayers;
+            // 
+            hudInstance = GameObject.Find("HUD").GetComponent<GUIManager>();
+            for (int i = 0; i < numPlayers; i++)
+            {
+                hudInstance.ActivePlayerHUD(i);
+            }
             // Deactivates players that wont plaY and disable markers other than P1
             switch (numPlayers)
             {
