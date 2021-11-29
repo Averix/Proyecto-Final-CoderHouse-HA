@@ -4,9 +4,15 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    // GameManager instance
     public static GameManager instance;
-    [SerializeField] [Range(1, 4)] private int numPlayers;
+    
+    // Amount of players
+    [SerializeField] [Range(1, 4)] public int numPlayers;
+    // Players Array
     [SerializeField] private GameObject[] players;
+    // Players Inventory
+    [SerializeField] private GameObject inventoryManagerInstance;
     //[SerializeField] private int[] playerTurn;
     [SerializeField] private int currentTurn;
     [SerializeField] private float nextTunrTimer;
@@ -18,13 +24,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject[] audioTrigger;
     [SerializeField] private AudioClip[] audioClips;
     [SerializeField] private AudioSource mainSound;
+    [SerializeField] private AudioSource coinSound;
+    [SerializeField] private AudioClip coinClip;
     // Raycast triggers
     [SerializeField] private int rayDistance = 1;
     [SerializeField] public RaycastHit hit;
+    // Menu data Transfer
+    private MenuDataTransfer dataInstance;
     // Player movement Script
     private PlayerMovement playerMovement;
     // Player marker control
     private MarkerController markerController;
+    // Player inventory control
+    private InventoryManager inventoryManager;
     // Player camera control
     [SerializeField] private CameraManager cameramanager;
     // Player turn status 
@@ -52,6 +64,9 @@ public class GameManager : MonoBehaviour
             players[1] = GameObject.Find("Player 2");
             players[2] = GameObject.Find("Player 3");
             players[3] = GameObject.Find("Player 4");
+            // Gets numPlayers from Menu Data
+            dataInstance = GameObject.Find("Menu Data Transfer").GetComponent<MenuDataTransfer>();
+            numPlayers = dataInstance.numPlayers;
             // Deactivates players that wont plaY and disable markers other than P1
             switch (numPlayers)
             {
@@ -88,6 +103,9 @@ public class GameManager : MonoBehaviour
             markerController.markerIndex = 3;
             markerController.markerEN = false;
 
+            inventoryManagerInstance = GameObject.Find("InventoryManager");
+            inventoryManager = inventoryManagerInstance.GetComponent<InventoryManager>();
+
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -111,10 +129,11 @@ public class GameManager : MonoBehaviour
         actionDone = false;
         turnEnd = false;
         currentPlayer = 0;
+        inventoryManager.currentPlayer = currentPlayer;
         // Initialize timers
         nextTunrTimer = 0.00f;
         turnTimer = 120.00f;
-        
+
     }
 
     // Update is called once per frame
@@ -225,6 +244,7 @@ public class GameManager : MonoBehaviour
             if (nextTunrTimer >= 2.00f)
             {
                 currentPlayer++;
+                inventoryManager.currentPlayer = currentPlayer;
                 nextPlayerTurn = false;
                 movementPhaseDone = false;
                 actionDone = false;
@@ -341,5 +361,11 @@ public class GameManager : MonoBehaviour
             mainSound.clip = audioClips[2];
             mainSound.Play();
         }
+    }
+
+    // Plays coin sound
+    public void CoinSound()
+    {
+        coinSound.PlayOneShot(coinClip);
     }
 }

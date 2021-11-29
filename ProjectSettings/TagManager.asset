@@ -11,17 +11,19 @@ TagManager:
   - Enemy
   - Platform
   - Markers
+  - Token
+  - Main Menu
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Enviroment
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - Player 1
+  - Player 2
+  - Player 3
+  - Player 4
   - 
   - 
   - 

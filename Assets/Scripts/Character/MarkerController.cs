@@ -35,8 +35,6 @@ public class MarkerController : MonoBehaviour
         else
         {
             markerGO[markerIndex].SetActive(false);
-        }
-        
-
+        } 
     }
 }
