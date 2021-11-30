@@ -12,6 +12,13 @@ public class ItemBehaviour : MonoBehaviour
     // Game Manager
     [SerializeField] private GameObject gameManager;
     [SerializeField] private GameManager gmInstance;
+    // HUD Control
+    private GUIManager hudInstance;
+
+    private void Awake()
+    {
+        hudInstance = GameObject.Find("HUD").GetComponent<GUIManager>();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +41,7 @@ public class ItemBehaviour : MonoBehaviour
         {
             instance.item = gameObject;
             instance.AddItem();
+            hudInstance.StatIncrease(gmInstance.currentPlayer, 0);
             gmInstance.CoinSound();
             Destroy(gameObject);
         }

@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     //[SerializeField] private int[] playerTurn;
     [SerializeField] private int currentTurn;
     [SerializeField] private float nextTunrTimer;
-    [SerializeField] private int currentPlayer;
+    [SerializeField] public int currentPlayer;
     [SerializeField] public static int score;
     [SerializeField] private float turnTimer = 0.00f;
     [SerializeField] private int loopPosition;
