@@ -3584,18 +3584,22 @@ MonoBehaviour:
   - {fileID: 802731635029930459}
   - {fileID: 802731635029930458}
   - {fileID: 802731635029930457}
+  statsValueP1: 000000000000000000000000
   statsPlayer2:
   - {fileID: 1143788092544231798}
   - {fileID: 1143788092544231797}
   - {fileID: 1143788092544231796}
+  statsValueP2: 000000000000000000000000
   statsPlayer3:
   - {fileID: 5440738625705042134}
   - {fileID: 5440738625705042133}
   - {fileID: 5440738625705042132}
+  statsValueP3: 000000000000000000000000
   statsPlayer4:
   - {fileID: 5878717106025492304}
   - {fileID: 5878717106025492303}
   - {fileID: 5878717106025492302}
+  statsValueP4: 000000000000000000000000
 --- !u!1 &1509260972 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3976931798977766866, guid: 4929d8d0a646cb44a8c693a12cd33973, type: 3}
@@ -5077,6 +5081,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3976931799057769793, guid: 4929d8d0a646cb44a8c693a12cd33973, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3976931800283189044, guid: 4929d8d0a646cb44a8c693a12cd33973, type: 3}
       propertyPath: m_Name
       value: 'Play Area '
@@ -5124,6 +5132,10 @@ PrefabInstance:
     - target: {fileID: 3976931800283189045, guid: 4929d8d0a646cb44a8c693a12cd33973, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3976931800363498245, guid: 4929d8d0a646cb44a8c693a12cd33973, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4929d8d0a646cb44a8c693a12cd33973, type: 3}
