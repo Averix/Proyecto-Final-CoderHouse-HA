@@ -36,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         playerAnimator = GetComponentInChildren<Animator>();
+
     }
 
     // Update is called once per frame

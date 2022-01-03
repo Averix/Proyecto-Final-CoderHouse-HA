@@ -11,6 +11,7 @@ public class MenuDataTransfer : MonoBehaviour
     public static MenuDataTransfer instance;
     // Amount of players
     [SerializeField] [Range(1, 4)] public int numPlayers;
+    [SerializeField] [Range(1, 4)] public int numTurns;
 
     void Awake()
     {
@@ -44,5 +45,10 @@ public class MenuDataTransfer : MonoBehaviour
     public void PlayerAssign(int players)
     {
         numPlayers = players;
+    }
+    // Method to assign number of turns
+    public void TurnrAssign(int turns)
+    {
+        numTurns = turns;
     }
 }

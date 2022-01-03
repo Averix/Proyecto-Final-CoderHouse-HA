@@ -47,9 +47,18 @@ public class MainMenuController : MonoBehaviour
         currentMenu = menuSection[1];
     }
     // Starts a new game and transfer the selected amount of players
-    public void StartNewGame(int numPlayers)
+    public void PlayerAmount(int numPlayers)
     {
         menuDataInstance.PlayerAssign(numPlayers);
+        menuSection[1].SetActive(false);
+        menuSection[6].SetActive(true);
+        previousMenu = menuSection[1];
+        currentMenu = menuSection[6];
+    }
+    // Starts a new game and transfer the selected amount of players
+    public void StartNewGame(int numTurns)
+    {
+        menuDataInstance.TurnrAssign(numTurns);
         SceneManager.LoadScene(1);
     }
     // Access the Minigames Section

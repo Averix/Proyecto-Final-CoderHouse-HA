@@ -7,7 +7,7 @@ public class GUIManager : MonoBehaviour
 {
     // Players HUD
     [SerializeField] private GameObject[] playerHUD;
-    // Players StatS
+    // Players Stats
     public Dictionary<int, TextMeshProUGUI[]> players = new Dictionary<int, TextMeshProUGUI[]>();
     public Dictionary<int, int[]> playersStats = new Dictionary<int, int[]>();
     [SerializeField] private TextMeshProUGUI[] statsPlayer1 = new TextMeshProUGUI[3];

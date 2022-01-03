@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +11,8 @@ public class GameManager : MonoBehaviour
     
     // Amount of players
     [SerializeField] [Range(1, 4)] public int numPlayers;
+    // Amount of turns
+    [SerializeField] public int numTurns;
     // Players Array
     [SerializeField] private GameObject[] players;
     // Players Inventory
@@ -53,7 +57,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] public static bool movementOverride = false;
     [SerializeField] public static bool actionOverride = false;
 
+    // GAME EVENTS
+    // Fight
+    public event Action<bool> onFight;
+    // Quest
+    public event Action<bool> onQuest;
+    // Rest
+    public event Action<bool> onRest;
+    // BossFight
+    public event Action<bool> onBossFight;
 
+    // SINGLETON AND INITIALIZATION
     void Awake()
     {
         // Singleton method
@@ -66,9 +80,10 @@ public class GameManager : MonoBehaviour
             players[1] = GameObject.Find("Player 2");
             players[2] = GameObject.Find("Player 3");
             players[3] = GameObject.Find("Player 4");
-            // Gets numPlayers from Menu Data
+            // Gets numPlayers and numTurns from Menu Data
             dataInstance = GameObject.Find("Menu Data Transfer").GetComponent<MenuDataTransfer>();
             numPlayers = dataInstance.numPlayers;
+            numTurns = dataInstance.numTurns;
             // 
             hudInstance = GameObject.Find("HUD").GetComponent<GUIManager>();
             for (int i = 0; i < numPlayers; i++)
@@ -95,7 +110,7 @@ public class GameManager : MonoBehaviour
             }
             
             // gets virtual camera
-            GameObject vCam = GameObject.Find("Vcam1");
+            GameObject vCam = GameObject.Find("Cameras");
             cameramanager = vCam.GetComponent<CameraManager>();
             CameraChange(currentPlayer);
 
@@ -123,7 +138,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    // Start is called before the first frame update
+    // VARIABLE INIZTIALIZATION
     void Start()
     {
         // Initialize the turn, player order and loop position
@@ -144,133 +159,140 @@ public class GameManager : MonoBehaviour
 
     }
 
-    // Update is called once per frame
+    // PLAYER TURN AND GLOBAL TURN SEQUENCE
     void Update()
     {
-        // Turn timer control
-        if (turnTimer >= 0.0f)
+        if (currentTurn <= numTurns)
         {
-            turnTimer -= Time.deltaTime;
-        }
-        else
-        {
-            // Override movemente phase
-            if (movementPhaseStart)
+            // Turn timer control
+            if (turnTimer >= 0.0f)
             {
-                if (!playerMovement.isRun)
-                {
-                    movementOverride = true;
-                }
-                else
-                {
-                    movementOverride = false;
-                }    
-            }
-
-            // Override action phase
-            if (actionPhase && !actionDone)
-            {
-                actionOverride = true;
+                turnTimer -= Time.deltaTime;
             }
             else
             {
-                actionOverride = false;
-            }
-        }
-
-        // starts at 0, if numplayers = 1 then it will only execute once
-        if (currentPlayer != numPlayers)
-        {
-            // gets current player scripts
-            playerMovement = players[currentPlayer].GetComponent<PlayerMovement>();
-            // Gets current player marker script
-            markerController = players[currentPlayer].GetComponentInChildren<MarkerController>();
-            // Enables markes and asigns color according to current player
-            MarkerEnabler(currentPlayer);
-            // sets canera on current player
-            CameraChange(currentPlayer);
-
-            // if player hasnt moved and is nost moving then Start Movement Phase
-            if (!movementPhaseDone && !playerMovement.isRun && !playerMovement.movementDone && !nextPlayerTurn)
-            {
-                movementPhaseStart = true;
-            }
-
-            // Once movement has started the flags are set to avoid setting start again
-            if (movementPhaseStart)
-            {
-                if (playerMovement.isRun)
+                // Override movemente phase
+                if (movementPhaseStart)
                 {
-                    movementPhaseStart = false;
+                    if (!playerMovement.isRun)
+                    {
+                        movementOverride = true;
+                    }
+                    else
+                    {
+                        movementOverride = false;
+                    }
+                }
+
+                // Override action phase
+                if (actionPhase && !actionDone)
+                {
+                    actionOverride = true;
                 }
                 else
                 {
-                    TurnMovement(movementOverride);
+                    actionOverride = false;
                 }
             }
 
-            if (playerMovement.movementDone)
+            // starts at 0, if numplayers = 1 then it will only execute once
+            if (currentPlayer != numPlayers)
             {
-                movementPhaseDone = true;
-            }
+                // gets current player scripts
+                playerMovement = players[currentPlayer].GetComponent<PlayerMovement>();
+                // Gets current player marker script
+                markerController = players[currentPlayer].GetComponentInChildren<MarkerController>();
+                // Enables markes and asigns color according to current player
+                MarkerEnabler(currentPlayer);
+                // sets canera on current player
+                CameraChange(currentPlayer);
 
-            // Once the movement hase is complete and player stopped we begin action phase
-            if (movementPhaseDone && !playerMovement.isRun && !actionDone)
-            {
-                actionPhase = true;
-            }
-
-            // in action phase we call for action scripts and await player input
-            if (actionPhase && !actionDone)
-            {
-                TurnAction(actionOverride);
-                if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.R) || actionOverride)
+                // if player hasnt moved and is nost moving then Start Movement Phase
+                if (!movementPhaseDone && !playerMovement.isRun && !playerMovement.movementDone && !nextPlayerTurn)
                 {
-                    actionPhase = false;
-                    actionDone = true;
+                    movementPhaseStart = true;
+                }
+
+                // Once movement has started the flags are set to avoid setting start again
+                if (movementPhaseStart)
+                {
+                    if (playerMovement.isRun)
+                    {
+                        movementPhaseStart = false;
+                    }
+                    else
+                    {
+                        TurnMovement(movementOverride);
+                    }
+                }
+
+                if (playerMovement.movementDone)
+                {
+                    movementPhaseDone = true;
+                }
+
+                // Once the movement hase is complete and player stopped we begin action phase
+                if (movementPhaseDone && !playerMovement.isRun && !actionDone)
+                {
+                    actionPhase = true;
+                }
+
+                // in action phase we call for action scripts and await player input
+                if (actionPhase && !actionDone)
+                {
+                    TurnAction(actionOverride);
+                    if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.R) || actionOverride)
+                    {
+                        actionPhase = false;
+                        actionDone = true;
+                    }
+                }
+
+                // the IF is missing parameters from the action scripts
+                // Once actions have been taken and confirmed a timner is started and player count is increased
+                if (movementPhaseDone && actionDone && !nextPlayerTurn)
+                {
+                    playerMovement.movementDone = false;
+                    nextPlayerTurn = true;
+                }
+
+                // Timer with message for playeRS
+                if (nextPlayerTurn)
+                {
+                    nextTunrTimer += Time.deltaTime;
+                    if (numPlayers != 1)
+                        Debug.Log("Preparate siguiente Jugador");
+                }
+
+                // once timer is ready actions are reset and another turn can be taken
+                // if more than 1 playuer is playing then the next player is anounced
+                if (nextTunrTimer >= 2.00f)
+                {
+                    currentPlayer++;
+                    inventoryManager.currentPlayer = currentPlayer;
+                    nextPlayerTurn = false;
+                    movementPhaseDone = false;
+                    actionDone = false;
+                    if (numPlayers != 1)
+                        Debug.Log("Tu turno Jugador" + currentPlayer);
+                    nextTunrTimer = 0.00f;
+                    turnTimer = 120.00f;
+                    MarkerDisable();
                 }
             }
 
-            // the IF is missing parameters from the action scripts
-            // Once actions have been taken and confirmed a timner is started and player count is increased
-            if (movementPhaseDone && actionDone && !nextPlayerTurn)
+            // if all players have played their turns the global turn counter increases
+            if (currentPlayer == numPlayers)
             {
-                playerMovement.movementDone = false;
-                nextPlayerTurn = true;
-            }
-
-            // Timer with message for playeRS
-            if (nextPlayerTurn)
-            {
-                nextTunrTimer += Time.deltaTime;
-                if (numPlayers != 1)
-                    Debug.Log("Preparate siguiente Jugador");
-            }
-
-            // once timer is ready actions are reset and another turn can be taken
-            // if more than 1 playuer is playing then the next player is anounced
-            if (nextTunrTimer >= 2.00f)
-            {
-                currentPlayer++;
-                inventoryManager.currentPlayer = currentPlayer;
-                nextPlayerTurn = false;
-                movementPhaseDone = false;
-                actionDone = false;
-                if (numPlayers != 1)
-                    Debug.Log("Tu turno Jugador" + currentPlayer);
-                nextTunrTimer = 0.00f;
-                turnTimer = 120.00f;
-                MarkerDisable();
+                currentPlayer = 0;
+                currentTurn++;
+                Debug.Log("Empieza tu nuevo turno");
             }
         }
-
-        // if all players have played their turns the global turn counter increases
-        if (currentPlayer == numPlayers)
+        else
         {
-            currentPlayer = 0;
-            currentTurn++;
-            Debug.Log("Empieza tu nuevo turno");
-        }
+            onBossFight?.Invoke(true);
+        }    
 
     }
 
@@ -281,7 +303,7 @@ public class GameManager : MonoBehaviour
     {
         if ((Input.GetKeyDown(KeyCode.Space) && playerMovement.movementPoints == 0)|| movementOverride)
         {
-            int movement = Random.Range(1, 7);
+            int movement = UnityEngine.Random.Range(1, 7);
             playerMovement.isRun = true;
             playerMovement.loopPosition = loopPosition;
             playerMovement.movementPoints = movement;
@@ -338,6 +360,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             // put fight script here
+            
             Debug.Log("Fight!");
         }
 
