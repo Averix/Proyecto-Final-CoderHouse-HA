@@ -18,6 +18,14 @@ public class GUIManager : MonoBehaviour
     [SerializeField] private int[] statsValueP3 = new int[3];
     [SerializeField] private TextMeshProUGUI[] statsPlayer4 = new TextMeshProUGUI[3];
     [SerializeField] private int[] statsValueP4 = new int[3];
+    // Gamemanager instance
+    private GameManager gameManager;
+
+    // Fight, Quest, and Rest Promp
+    [SerializeField] private GameObject fight;
+    [SerializeField] private GameObject quest;
+    [SerializeField] private GameObject rest;
+    [SerializeField] private GameObject finalBossPrompt;
 
     private void Awake()
     {
@@ -37,6 +45,15 @@ public class GUIManager : MonoBehaviour
 
         // Sets Dictionary for external use
         DictionaryInitialization();
+
+        //Gets GameManager Instance
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+        // Subscribe to events
+        gameManager.onFight += onFightHandler;
+        gameManager.onQuest += onQuestHandler; 
+        gameManager.onRest += onRestHandler;
+        gameManager.onBossFight += onBossFightHandler;
     }
     // Start is called before the first frame update
     void Start()
@@ -99,5 +116,23 @@ public class GUIManager : MonoBehaviour
         playersStats.Add(1, statsValueP2);
         playersStats.Add(2, statsValueP3);
         playersStats.Add(3, statsValueP4);
+    }
+
+    // Handlers for action prompts
+    private void onFightHandler(bool active)
+    {
+        fight.SetActive(active);
+    }
+    private void onQuestHandler(bool active)
+    {
+        quest.SetActive(active);
+    }
+    private void onRestHandler(bool active)
+    {
+        rest.SetActive(active);
+    }
+    private void onBossFightHandler(bool active)
+    {
+        finalBossPrompt.SetActive(active);
     }
 }

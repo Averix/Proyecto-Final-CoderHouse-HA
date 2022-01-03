@@ -278,6 +278,9 @@ public class GameManager : MonoBehaviour
                     nextTunrTimer = 0.00f;
                     turnTimer = 120.00f;
                     MarkerDisable();
+                    onFight?.Invoke(false);
+                    onQuest?.Invoke(false);
+                    onRest?.Invoke(false);
                 }
             }
 
@@ -293,7 +296,11 @@ public class GameManager : MonoBehaviour
         {
             onBossFight?.Invoke(true);
         }    
-
+        // Get back to main menu
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(0);
+        }
     }
 
     // Method to generate the movement and activate current player movement script
@@ -360,7 +367,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             // put fight script here
-            
+            onFight?.Invoke(true);
             Debug.Log("Fight!");
         }
 
@@ -368,6 +375,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             // put quest script here
+            onQuest?.Invoke(true);
             Debug.Log("Questing...");
         }
 
@@ -375,6 +383,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R ) || actionOverride)
         {
             // put recovery script here
+            onRest?.Invoke(true);
             Debug.Log("You decide to take a break and indulge in the scenery");
         }
     }
